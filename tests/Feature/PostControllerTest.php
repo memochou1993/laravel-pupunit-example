@@ -4,7 +4,6 @@ namespace Tests\Feature;
 
 use Tests\TestCase;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\Session;
 use Mockery;
 
 class PostControllerTest extends TestCase
@@ -34,26 +33,18 @@ class PostControllerTest extends TestCase
         $response->assertViewHas('posts');
     }
 
-    public function testCsrfFailed()
-    {
-        $response = $this->post('/posts');
-
-        $response->assertStatus(500);
-    }
-
     public function testCreatePostSuccess()
     {
         $this->repositoryMock
             ->shouldReceive('create')
             ->once();
 
-        Session::start();
-
         $response = $this->post('/posts', [
             'title' => 'title 999',
-            'content' => 'body 999',
-            '_token' => csrf_token(),
+            'content' => 'content 999',
         ]);
+        
+        $response->assertStatus(302);
 
         $response->assertRedirect('/posts');
     }
